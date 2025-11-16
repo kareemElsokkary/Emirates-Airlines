@@ -1,108 +1,110 @@
 let data = [];
 
-// Fetch data from server
+// Load JSON data from file
 async function loadData() {
-    const res = await fetch("/api/data");
-    data = await res.json();
-    displayData();
+  try {
+    const response = await fetch('data.json');
+    data = await response.json();
+    renderTable(data);
+  } catch (err) {
+    console.error("Error loading data:", err);
+  }
 }
 
-// Display data in table
-function displayData(filteredData = data) {
-    const tbody = document.querySelector("#dataTable tbody");
-    tbody.innerHTML = "";
+// Render table
+function renderTable(arr) {
+  const tbody = document.querySelector("#dataTable tbody");
+  tbody.innerHTML = "";
 
-    filteredData.forEach((item, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td contenteditable="true">${item.appName}</td>
-            <td contenteditable="true">${item.appData.appPath}</td>
-            <td contenteditable="true">${item.appData.appOwner}</td>
-            <td><input type="checkbox" ${item.appData.isValid ? "checked" : ""}></td>
-            <td>
-                <button onclick="updateData(${index}, this)">Update</button>
-                <button onclick="deleteData(${index})">Delete</button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
+  arr.forEach((item, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <!-- App Name and App Path are fixed, not editable -->
+      <td>${item.appName}</td>
+      <td>${item.appData.appPath}</td>
+
+      <!-- Owner is editable -->
+      <td contenteditable="true">${item.appData.appOwner}</td>
+
+      <!-- isValid is editable via select -->
+      <td>
+        <select>
+          <option value="true" ${item.appData.isValid ? "selected" : ""}>true</option>
+          <option value="false" ${!item.appData.isValid ? "selected" : ""}>false</option>
+        </select>
+      </td>
+
+      <!-- Actions: Update and Delete -->
+      <td>
+        <button onclick="updateRecord(${index}, this)">Update</button>
+        <button onclick="deleteRecord(${index})">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
 }
 
-// Search function
-// Search function: by appName, appOwner, or appPath
-function searchData() {
-    const query = document.getElementById("search").value.toLowerCase();
-
-    const filtered = data.filter(item =>
-        item.appName.toLowerCase().includes(query) ||                 // search by appName
-        item.appData.appOwner.toLowerCase().includes(query) ||        // search by appOwner
-        item.appData.appPath.toLowerCase().includes(query)            // search by appPath
-    );
-
-    displayData(filtered);
-}
+// Add new record
 function addNewData() {
-    const appName = document.getElementById("newAppName").value.trim();
-    const appPath = document.getElementById("newAppPath").value.trim();
-    const appOwner = document.getElementById("newAppOwner").value.trim();
-    const isValid = document.getElementById("newAppIsValid").checked;
+  const appName = document.getElementById("newAppName").value.trim();
+  const appPath = document.getElementById("newAppPath").value.trim();
+  const appOwner = document.getElementById("newAppOwner").value.trim();
+  const isValid = document.getElementById("newAppIsValid").checked;
 
-    if (!appName || !appPath || !appOwner) {
-        alert("Please fill in all fields!");
-        return;
-    }
+  if (!appName || !appPath || !appOwner) {
+    alert("Please fill in all fields!");
+    return;
+  }
 
-    const newApp = {
-        appName: appName,
-        appData: {
-            appPath: appPath,
-            appOwner: appOwner,
-            isValid: isValid
-        }
-    };
+  const newApp = {
+    appName,
+    appData: { appPath, appOwner, isValid }
+  };
 
-    // Add to data array
-    data.push(newApp);
+  data.push(newApp);
+  renderTable(data);
 
-    // Refresh table
-    displayData();
+  // Clear form
+  document.getElementById("newAppName").value = "";
+  document.getElementById("newAppPath").value = "";
+  document.getElementById("newAppOwner").value = "";
+  document.getElementById("newAppIsValid").checked = false;
 
-    // Clear form
-    document.getElementById("newAppName").value = "";
-    document.getElementById("newAppPath").value = "";
-    document.getElementById("newAppOwner").value = "";
-    document.getElementById("newAppIsValid").checked = false;
-
-    alert("New app added successfully!");
+  alert("New record added successfully!");
 }
 
+// Update editable fields only (Owner and isValid)
+function updateRecord(index, button) {
+  const row = button.closest("tr");
+  const appOwner = row.cells[2].innerText.trim();                 // editable
+  const isValid = row.cells[3].querySelector("select").value === "true"; // editable
 
-// Update record
-async function updateData(index, button) {
-    const row = button.closest("tr");
-    const updated = {
-        appName: row.cells[0].innerText,
-        appData: {
-            appPath: row.cells[1].innerText,
-            appOwner: row.cells[2].innerText,
-            isValid: row.cells[3].querySelector("input").checked
-        }
-    };
+  data[index].appData.appOwner = appOwner;
+  data[index].appData.isValid = isValid;
 
-    await fetch(`/api/data/${index}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updated)
-    });
-
-    loadData();
+  renderTable(data);
+  alert("Record updated successfully!");
 }
 
-// Delete record
-async function deleteData(index) {
-    await fetch(`/api/data/${index}`, { method: "DELETE" });
-    loadData();
+// Delete a record
+function deleteRecord(index) {
+  if (confirm("Are you sure you want to delete this record?")) {
+    data.splice(index, 1);
+    renderTable(data);
+  }
+}
+
+// Search by Owner
+function searchData() {
+  const owner = document.getElementById("searchOwner").value.toLowerCase();
+  const filtered = data.filter(d => d.appData.appOwner.toLowerCase().includes(owner));
+  renderTable(filtered);
+}
+
+// Reset table
+function resetTable() {
+  renderTable(data);
 }
 
 // Initialize
-loadData();
+window.onload = loadData;
