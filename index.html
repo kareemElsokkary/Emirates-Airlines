@@ -3,37 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emirates Flights</title>
+    <title>Flight Manager</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>Emirates Flights</h1>
+<h1>Flight Manager</h1>
 
-<input type="text" id="search" placeholder="Search by app name">
+<!-- Search -->
+<input type="text" id="search" placeholder="Search by AppName, AppOwner, or AppPath">
 <button onclick="searchData()">Search</button>
 
+<!-- Table -->
 <table id="dataTable">
     <thead>
     <tr>
         <th>App Name</th>
         <th>App Path</th>
-        <th>App Owner</th>
-        <th>Is Valid</th>
+        <th>Owner</th>
+        <th>isValid</th>
         <th>Actions</th>
     </tr>
     </thead>
     <tbody></tbody>
 </table>
-<h2>Add New App</h2>
-<div id="addForm">
-    <input type="text" id="newAppName" placeholder="App Name" readonly>
-    <input type="text" id="newAppPath" placeholder="App Path" readonly>
-    <input type="text" id="newAppOwner" placeholder="App Owner">
-    <label>
-        <input type="checkbox" id="newAppIsValid"> Is Valid
-    </label>
-    <button onclick="addNewData()">Add App</button>
-</div>
+
+<!-- Add New Record -->
+<h3>Add New Record</h3>
+<input type="text" id="newAppName" placeholder="App Name">
+<input type="text" id="newAppPath" placeholder="App Path">
+<input type="text" id="newAppOwner" placeholder="Owner">
+<label>
+    <input type="checkbox" id="newAppIsValid"> isValid
+</label>
+<button onclick="addNewData()">Add</button>
+
+<!-- Load data and script -->
+<script src="data.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
