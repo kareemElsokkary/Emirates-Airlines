@@ -1,123 +1,90 @@
 const express = require("express");
 const fs = require("fs");
+const cors = require("cors");
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+app.use(cors()); // allow front-end access
 
-// Helper: read JSON
+// Helper: Read JSON file
 function readData() {
-    return JSON.parse(fs.readFileSync("EKSdetUseCase.json"));
+  return JSON.parse(fs.readFileSync("data.json"));
 }
 
-// Helper: write JSON
+// Helper: Write JSON file
 function writeData(data) {
-    fs.writeFileSync("EKSdetUseCase.json", JSON.stringify(data, null, 2));
+  fs.writeFileSync("data.json", JSON.stringify(data, null, 2));
 }
 
-// ----------------------
-// READ
-// ----------------------
-
-// Get all apps
+/* =====================================================
+   GET  /api/apps      → Retrieve all data
+   ===================================================== */
 app.get("/api/apps", (req, res) => {
-    const data = readData();
-    res.json(data);
+  const data = readData();
+  res.status(200).json(data);
 });
 
-// Search apps by query params
-app.get("/api/apps/search", (req, res) => {
-    const { appName, appOwner, appPath } = req.query;
-    let data = readData();
-
-    if (appName) {
-        data = data.filter(item =>
-            item.appName.toLowerCase().includes(appName.toLowerCase())
-        );
-    }
-    if (appOwner) {
-        data = data.filter(item =>
-            item.appData.appOwner.toLowerCase().includes(appOwner.toLowerCase())
-        );
-    }
-    if (appPath) {
-        data = data.filter(item =>
-            item.appData.appPath.toLowerCase().includes(appPath.toLowerCase())
-        );
-    }
-
-    res.json(data);
-});
-
-// Get single app by index
-app.get("/api/apps/:index", (req, res) => {
-    const data = readData();
-    const index = parseInt(req.params.index);
-    if (index >= 0 && index < data.length) {
-        res.json(data[index]);
-    } else {
-        res.status(404).json({ message: "Index not found" });
-    }
-});
-
-// ----------------------
-// CREATE
-// ----------------------
+/* =====================================================
+   POST /api/apps      → Create new record
+   ===================================================== */
 app.post("/api/apps", (req, res) => {
-    const newApp = req.body;
+  const newRecord = req.body;
 
-    if (!newApp.appName || !newApp.appData || !newApp.appData.appOwner || !newApp.appData.appPath) {
-        return res.status(400).json({ message: "Missing required fields" });
-    }
+  if (!newRecord.appName || !newRecord.appData) {
+    return res.status(400).json({ message: "Invalid JSON body" });
+  }
 
-    const data = readData();
-    data.push(newApp);
-    writeData(data);
+  const data = readData();
+  data.push(newRecord);
+  writeData(data);
 
-    res.status(201).json({ message: "App added successfully", app: newApp });
+  res.status(201).json({ message: "Record created", record: newRecord });
 });
 
-// ----------------------
-// UPDATE
-// ----------------------
+/* =====================================================
+   PUT /api/apps/:index → Update record
+   ===================================================== */
 app.put("/api/apps/:index", (req, res) => {
-    const data = readData();
-    const index = parseInt(req.params.index);
+  const index = parseInt(req.params.index);
+  const updatedRecord = req.body;
 
-    if (index >= 0 && index < data.length) {
-        const updatedApp = req.body;
+  const data = readData();
 
-        // Basic validation
-        if (!updatedApp.appName || !updatedApp.appData || !updatedApp.appData.appOwner || !updatedApp.appData.appPath) {
-            return res.status(400).json({ message: "Missing required fields" });
-        }
+  if (index < 0 || index >= data.length) {
+    return res.status(404).json({ message: "Record not found" });
+  }
 
-        data[index] = updatedApp;
-        writeData(data);
+  // Prevent modification of fixed fields
+  updatedRecord.appName = data[index].appName;
+  updatedRecord.appData.appPath = data[index].appData.appPath;
 
-        res.json({ message: "App updated successfully", app: updatedApp });
-    } else {
-        res.status(404).json({ message: "Index not found" });
-    }
+  data[index] = updatedRecord;
+  writeData(data);
+
+  res.status(200).json({ message: "Record updated", record: updatedRecord });
 });
 
-// ----------------------
-// DELETE
-// ----------------------
+/* =====================================================
+   DELETE /api/apps/:index → Delete record
+   ===================================================== */
 app.delete("/api/apps/:index", (req, res) => {
-    const data = readData();
-    const index = parseInt(req.params.index);
+  const index = parseInt(req.params.index);
+  const data = readData();
 
-    if (index >= 0 && index < data.length) {
-        const deletedApp = data.splice(index, 1)[0];
-        writeData(data);
-        res.json({ message: "App deleted successfully", app: deletedApp });
-    } else {
-        res.status(404).json({ message: "Index not found" });
-    }
+  if (index < 0 || index >= data.length) {
+    return res.status(404).json({ message: "Record not found" });
+  }
+
+  const removed = data.splice(index, 1);
+  writeData(data);
+
+  res.status(200).json({ message: "Record deleted", deleted: removed });
 });
 
-// Start server
+/* =====================================================
+   START SERVER
+   ===================================================== */
 app.listen(PORT, () => {
-    console.log(`API Gateway running at http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
