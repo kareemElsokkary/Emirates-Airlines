@@ -38,5 +38,13 @@
       "appOwner": "Emirates Flight",
       "isValid": true
     }
+  },
+  {
+    "appName": "sad",
+    "appData": {
+      "appPath": "asd",
+      "appOwner": "sad",
+      "isValid": true
+    }
   }
 ]
