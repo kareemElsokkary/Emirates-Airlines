@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emirates Flights</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Emirates Flights</h1>
+
+<input type="text" id="search" placeholder="Search by app name">
+<button onclick="searchData()">Search</button>
+
+<table id="dataTable">
+    <thead>
+    <tr>
+        <th>App Name</th>
+        <th>App Path</th>
+        <th>App Owner</th>
+        <th>Is Valid</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<h2>Add New App</h2>
+<div id="addForm">
+    <input type="text" id="newAppName" placeholder="App Name" readonly>
+    <input type="text" id="newAppPath" placeholder="App Path" readonly>
+    <input type="text" id="newAppOwner" placeholder="App Owner">
+    <label>
+        <input type="checkbox" id="newAppIsValid"> Is Valid
+    </label>
+    <button onclick="addNewData()">Add App</button>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

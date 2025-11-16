@@ -1,0 +1,42 @@
+[
+  {
+    "appName": "Emirates SkyWays",
+    "appData": {
+      "appPath": "my path 1",
+      "appOwner": "Emirates Flight",
+      "isValid": true
+    }
+  },
+  {
+    "appName": "Emirates Horizon",
+    "appData": {
+      "appPath": "my path 2",
+      "appOwner": "Emirates Flight",
+      "isValid": true
+    }
+  },
+  {
+    "appName": "Emirates LuxeFly",
+    "appData": {
+      "appPath": "my path 3",
+      "appOwner": "Emirates Flight",
+      "isValid": true
+    }
+  },
+  {
+    "appName": "Emirates JetSet",
+    "appData": {
+      "appPath": "my path 4",
+      "appOwner": "Emirates Flight",
+      "isValid": false
+    }
+  },
+  {
+    "appName": "Emirates QuickBoard",
+    "appData": {
+      "appPath": "my path 6",
+      "appOwner": "Emirates Flight",
+      "isValid": true
+    }
+  }
+]
